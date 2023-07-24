@@ -53,7 +53,7 @@ fun PostCard(
         Content(feedPost)
         Spacer(modifier = Modifier.height(4.dp))
         Stats(
-            stats = feedPost.stats,
+            feedPost = feedPost,
             onViewsClickListener = onViewsClickListener,
             onSharesClickListener = onSharesClickListener,
             onCommentsClickListener = onCommentsClickListener,
@@ -81,12 +81,13 @@ private fun Content(feedPost: FeedPost) {
 
 @Composable
 private fun Stats(
-    stats: List<StatItem>,
+    feedPost: FeedPost,
     onViewsClickListener: (StatItem) -> Unit,
     onSharesClickListener: (StatItem) -> Unit,
     onCommentsClickListener: (StatItem) -> Unit,
     onLikesClickListener: (StatItem) -> Unit
 ) {
+    val stats = feedPost.stats
     Row(
         modifier = Modifier
     ) {
@@ -202,33 +203,6 @@ private fun StatIcon(
             text = text,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(2.dp)
-        )
-    }
-}
-
-
-@Preview
-@Composable
-private fun PreviewLight() {
-    VkNewsClientTheme(darkTheme = false) {
-        PostCard(
-            onViewsClickListener = {},
-            onCommentsClickListener = {},
-            onLikesClickListener = {},
-            onSharesClickListener = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewDark() {
-    VkNewsClientTheme(darkTheme = true) {
-        PostCard(
-            onViewsClickListener = {},
-            onCommentsClickListener = {},
-            onLikesClickListener = {},
-            onSharesClickListener = {}
         )
     }
 }
