@@ -40,7 +40,7 @@ fun PostCard(
     feedPost: FeedPost = FeedPost(),
     onViewsClickListener: (StatItem) -> Unit,
     onSharesClickListener: (StatItem) -> Unit,
-    onCommentsClickListener: (StatItem) -> Unit,
+    onCommentsClickListener: () -> Unit,
     onLikesClickListener: (StatItem) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -84,7 +84,7 @@ private fun Stats(
     feedPost: FeedPost,
     onViewsClickListener: (StatItem) -> Unit,
     onSharesClickListener: (StatItem) -> Unit,
-    onCommentsClickListener: (StatItem) -> Unit,
+    onCommentsClickListener: () -> Unit,
     onLikesClickListener: (StatItem) -> Unit
 ) {
     val stats = feedPost.stats
@@ -125,7 +125,7 @@ private fun Stats(
                 drawableId = R.drawable.ic_comment,
                 text = commentsItem.count.toString(),
                 clickListener = {
-                    onCommentsClickListener(commentsItem)
+                    onCommentsClickListener()
                 }
             )
             StatIcon(

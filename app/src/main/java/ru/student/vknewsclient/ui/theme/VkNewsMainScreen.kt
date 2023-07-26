@@ -1,45 +1,44 @@
 package ru.student.vknewsclient.ui.theme
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.DismissDirection
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import ru.student.vknewsclient.domain.NavigationItem
+import ru.student.vknewsclient.navigation.AppNavGraph
+import ru.student.vknewsclient.navigation.rememberNavigationState
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen() {
+    val navigationState = rememberNavigationState()
     Scaffold(
         bottomBar = {
             NavigationBar {
+                val navBackStackEntry = navigationState.navHostController
+                    .currentBackStackEntryAsState()
                 val items = listOf(
                     NavigationItem.Home, NavigationItem.Favourite, NavigationItem.Profile
                 )
-                val selectedItemPos = remember { mutableStateOf(0) }
-                items.forEachIndexed { index, it ->
+                items.forEach {
+                    val selected =
+                        navBackStackEntry.value?.destination?.hierarchy?.any {
+                                destination ->
+                            it.screen.route == destination.route
+                        } ?: false
                     NavigationBarItem(
-                        selected = selectedItemPos.value == index,
-                        onClick = { selectedItemPos.value = index },
+                        selected = selected,
+                        onClick = { if(!selected) navigationState.navigate(it.screen.route) },
                         icon = {
                             Icon(
                                 imageVector = it.icon, contentDescription = null
@@ -60,55 +59,26 @@ fun MainScreen(viewModel: MainViewModel) {
             }
         },
     ) {
-        val feedPost = viewModel.feedPost.observeAsState(listOf())
-        LazyColumn(contentPadding = it, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            itemsIndexed(
-                items = feedPost.value,
-                key = { _, item -> item.id }
-            ) { _, model ->
-                val state = rememberDismissState()
-                if (state.isDismissed(DismissDirection.EndToStart) || state.isDismissed(
-                        DismissDirection.StartToEnd
-                    )
-                ) {
-                    viewModel.removePost(model)
+        AppNavGraph(
+            navHostController = navigationState.navHostController,
+            homeScreenContent = {
+                HomeScreen(paddingValues = it) {
+                    navigationState.navigateToComments(it)
                 }
-                SwipeToDismiss(
-                    modifier = Modifier.animateItemPlacement(),
-                    state = state,
-                    background = {
-                        Box(modifier = Modifier.background(Color.White))
+            },
+            favouriteScreenContent = {
+                val count = rememberSaveable { mutableStateOf(0) }
+                Text(text = "Fav ${count.value}", Modifier.clickable { count.value++ })
+            },
+            profileScreenContent = { Text(text = "Prof") },
+            commentsScreenContent = {
+                CommentsScreen(
+                    onBackPressedListener = {
+                        navigationState.navHostController.popBackStack()
                     },
-                    dismissContent = {
-                        PostCard(
-                            feedPost = model,
-                            onViewsClickListener = { statItem ->
-                                viewModel.updateCount(model, statItem)
-                            },
-                            onSharesClickListener = { statItem ->
-                                viewModel.updateCount(model, statItem)
-                            },
-                            onCommentsClickListener = { statItem ->
-                                viewModel.updateCount(model, statItem)
-                            },
-                            onLikesClickListener = { statItem ->
-                                viewModel.updateCount(model, statItem)
-                            },
-                        )
-                    },
-                    directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart)
+                    feedPost = it
                 )
-
             }
-        }
-//        PostCard(
-//            modifier = Modifier.padding(it),
-//            feedPost = feedPost.value,
-//            onViewsClickListener = viewModel::updateCount,
-//            onLikesClickListener = viewModel::updateCount,
-//            onCommentsClickListener = viewModel::updateCount,
-//            onSharesClickListener = viewModel::updateCount
-//        )
+        )
     }
-
 }

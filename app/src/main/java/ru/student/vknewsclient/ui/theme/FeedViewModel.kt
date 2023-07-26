@@ -3,27 +3,31 @@ package ru.student.vknewsclient.ui.theme
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ru.student.vknewsclient.domain.Comment
 import ru.student.vknewsclient.domain.FeedPost
 import ru.student.vknewsclient.domain.StatItem
 
-class MainViewModel : ViewModel() {
+class FeedViewModel : ViewModel() {
 
-    private val _feedPost = MutableLiveData(
-        List(10) {
-            FeedPost(id = it, communityName = it.toString())
-        }
+    private val _screenState: MutableLiveData<FeedScreenState> = MutableLiveData(
+        FeedScreenState.Posts(
+            List(10) {
+                FeedPost(id = it, communityName = it.toString())
+            }
+        )
     )
-    val feedPost: LiveData<List<FeedPost>> = _feedPost
+    val screenState: LiveData<FeedScreenState> = _screenState
 
     fun updateCount(feedPost: FeedPost, item: StatItem) {
-        val feedPosts = _feedPost.value?.toMutableList() ?: mutableListOf()
+        val feedPosts = (_screenState.value as? FeedScreenState.Posts)
+            ?.posts?.toMutableList() ?: return
         feedPosts.replaceAll {
             if (it.id == feedPost.id) {
                 return@replaceAll updatedPost(it, item)
             }
             return@replaceAll it
         }
-        _feedPost.value = feedPosts
+        _screenState.value = FeedScreenState.Posts(feedPosts)
     }
 
     private fun updatedPost(feedPost: FeedPost, item: StatItem): FeedPost {
@@ -40,8 +44,10 @@ class MainViewModel : ViewModel() {
     }
 
     fun removePost(feedPost: FeedPost) {
-        val posts = _feedPost.value?.toMutableList() ?: mutableListOf()
+        val posts = (_screenState.value as? FeedScreenState.Posts)?.posts
+            ?.toMutableList() ?: return
         posts.remove(feedPost)
-        _feedPost.value = posts
+        _screenState.value = FeedScreenState.Posts(posts)
     }
+
 }

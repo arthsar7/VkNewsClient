@@ -11,13 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import ru.student.vknewsclient.ui.theme.MainScreen
-import ru.student.vknewsclient.ui.theme.MainViewModel
+import ru.student.vknewsclient.ui.theme.FeedViewModel
 import ru.student.vknewsclient.ui.theme.VkNewsClientTheme
 
 class MainActivity : ComponentActivity() {
-    private val viewModel by viewModels<MainViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -28,7 +26,7 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                         .padding(8.dp)
                 ) {
-                    MainScreen(viewModel)
+                    MainScreen()
                 }
             }
         }
