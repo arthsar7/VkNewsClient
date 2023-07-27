@@ -1,4 +1,4 @@
-package ru.student.vknewsclient.domain
+package ru.student.vknewsclient.presentation.comments
 
 import ru.student.vknewsclient.R
 

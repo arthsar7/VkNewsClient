@@ -1,4 +1,4 @@
-package ru.student.vknewsclient.domain
+package ru.student.vknewsclient.presentation.news
 
 import android.os.Build
 import android.os.Bundle
@@ -7,6 +7,9 @@ import androidx.navigation.NavType
 import com.google.gson.Gson
 import kotlinx.parcelize.Parcelize
 import ru.student.vknewsclient.R
+import ru.student.vknewsclient.domain.StatItem
+import ru.student.vknewsclient.domain.StatType
+
 @Parcelize
 data class FeedPost(
     val id: Int = 0,

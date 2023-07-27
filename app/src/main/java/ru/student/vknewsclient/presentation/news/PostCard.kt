@@ -1,4 +1,4 @@
-package ru.student.vknewsclient.ui.theme
+package ru.student.vknewsclient.presentation.news
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -27,10 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.student.vknewsclient.R
-import ru.student.vknewsclient.domain.FeedPost
 import ru.student.vknewsclient.domain.StatItem
 import ru.student.vknewsclient.domain.StatType
 

@@ -1,7 +1,6 @@
-package ru.student.vknewsclient.ui.theme
+package ru.student.vknewsclient.presentation.comments
 
-import ru.student.vknewsclient.domain.Comment
-import ru.student.vknewsclient.domain.FeedPost
+import ru.student.vknewsclient.presentation.news.FeedPost
 
 sealed class CommentsScreenState {
 

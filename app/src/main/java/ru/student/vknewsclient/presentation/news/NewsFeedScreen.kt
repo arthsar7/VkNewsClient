@@ -1,4 +1,4 @@
-package ru.student.vknewsclient.ui.theme
+package ru.student.vknewsclient.presentation.news
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -16,10 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.student.vknewsclient.domain.FeedPost
 
 @Composable
-fun HomeScreen(
+fun NewsScreen(
     paddingValues: PaddingValues,
     onCommentsClickListener: (FeedPost) -> Unit
 ) {

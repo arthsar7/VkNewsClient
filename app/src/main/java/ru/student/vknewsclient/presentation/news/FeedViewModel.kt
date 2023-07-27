@@ -1,10 +1,8 @@
-package ru.student.vknewsclient.ui.theme
+package ru.student.vknewsclient.presentation.news
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.student.vknewsclient.domain.Comment
-import ru.student.vknewsclient.domain.FeedPost
 import ru.student.vknewsclient.domain.StatItem
 
 class FeedViewModel : ViewModel() {

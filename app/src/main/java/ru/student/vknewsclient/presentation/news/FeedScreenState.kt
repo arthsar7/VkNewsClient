@@ -1,6 +1,4 @@
-package ru.student.vknewsclient.ui.theme
-
-import ru.student.vknewsclient.domain.FeedPost
+package ru.student.vknewsclient.presentation.news
 
 sealed class FeedScreenState {
 
