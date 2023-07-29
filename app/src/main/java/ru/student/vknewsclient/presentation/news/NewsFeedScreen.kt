@@ -34,6 +34,7 @@ fun NewsScreen(
                 onCommentsClickListener = onCommentsClickListener
             )
         }
+
         is FeedScreenState.Initial -> {
 
         }
@@ -53,8 +54,8 @@ private fun FeedPosts(
             items = feedPosts,
             key = { _, item -> item.id }
         ) { _, feedPost ->
-            val state = rememberDismissState()
-            if (state.isDismissed(DismissDirection.StartToEnd)) {
+            val state = rememberDismissState(positionalThreshold = { 0.1f })
+            if (state.isDismissed(DismissDirection.EndToStart)) {
                 viewModel.removePost(feedPost)
             }
             SwipeToDismiss(
@@ -78,7 +79,7 @@ private fun FeedPosts(
                         },
                     )
                 },
-                directions = setOf(DismissDirection.StartToEnd)
+                directions = setOf(DismissDirection.EndToStart)
             )
         }
     }

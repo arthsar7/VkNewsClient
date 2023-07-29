@@ -4,12 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.vk.api.sdk.VK
 import com.vk.api.sdk.VKPreferencesKeyValueStorage
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthenticationResult
-import ru.student.vknewsclient.presentation.main.AuthState
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _authState = MutableLiveData<AuthState>(AuthState.Initial)

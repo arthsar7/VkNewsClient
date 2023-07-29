@@ -15,10 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import ru.student.vknewsclient.presentation.main.NavigationItem
 import ru.student.vknewsclient.navigation.AppNavGraph
 import ru.student.vknewsclient.navigation.rememberNavigationState
 import ru.student.vknewsclient.presentation.comments.CommentsScreen
+import ru.student.vknewsclient.presentation.main.NavigationItem
 import ru.student.vknewsclient.presentation.news.NewsScreen
 
 @Composable

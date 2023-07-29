@@ -1,21 +1,38 @@
 package ru.student.vknewsclient.presentation.news
 
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.vk.api.sdk.VKPreferencesKeyValueStorage
+import com.vk.api.sdk.auth.VKAccessToken
+import kotlinx.coroutines.launch
+import ru.student.vknewsclient.data.mapper.FeedMapper
+import ru.student.vknewsclient.data.network.ApiFactory
 import ru.student.vknewsclient.domain.StatItem
 
-class FeedViewModel : ViewModel() {
+class FeedViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _screenState: MutableLiveData<FeedScreenState> = MutableLiveData(
-        FeedScreenState.Posts(
-            List(10) {
-                FeedPost(id = it, communityName = it.toString())
-            }
-        )
-    )
+    private val _screenState: MutableLiveData<FeedScreenState> = MutableLiveData(FeedScreenState.Initial)
     val screenState: LiveData<FeedScreenState> = _screenState
+    private val mapper = FeedMapper()
 
+    init {
+        loadRecommendations()
+    }
+
+    private fun loadRecommendations() {
+        viewModelScope.launch {
+            val storage = VKPreferencesKeyValueStorage(getApplication())
+            val token = VKAccessToken.restore(storage) ?: return@launch
+            val response = ApiFactory.apiService.loadRecommendation(token.accessToken)
+            val feedPosts = mapper.mapResponseToPost(response)
+            Log.d("PZDC", feedPosts[0].contentURL.toString())
+            _screenState.value = FeedScreenState.Posts(feedPosts)
+        }
+    }
     fun updateCount(feedPost: FeedPost, item: StatItem) {
         val feedPosts = (_screenState.value as? FeedScreenState.Posts)
             ?.posts?.toMutableList() ?: return

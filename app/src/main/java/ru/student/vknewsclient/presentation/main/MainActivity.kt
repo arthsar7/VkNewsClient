@@ -8,10 +8,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKScope
-import ru.student.vknewsclient.presentation.main.AuthState
-import ru.student.vknewsclient.presentation.main.LoginScreen
 import ru.student.vknewsclient.ui.theme.MainScreen
-import ru.student.vknewsclient.presentation.main.MainViewModel
 import ru.student.vknewsclient.ui.theme.VkNewsClientTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,7 +36,7 @@ class MainActivity : ComponentActivity() {
 
                     AuthState.NotAuthorized -> {
                         LoginScreen {
-                            launcher.launch(arrayListOf(VKScope.WALL))
+                            launcher.launch(arrayListOf(VKScope.WALL, VKScope.FRIENDS))
                         }
                     }
                 }
