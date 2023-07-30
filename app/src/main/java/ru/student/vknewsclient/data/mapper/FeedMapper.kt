@@ -4,6 +4,9 @@ import ru.student.vknewsclient.data.model.FeedResponseDto
 import ru.student.vknewsclient.domain.StatItem
 import ru.student.vknewsclient.domain.StatType
 import ru.student.vknewsclient.presentation.news.FeedPost
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.absoluteValue
 
 class FeedMapper {
@@ -17,7 +20,7 @@ class FeedMapper {
             val feedPost = FeedPost(
                 id = post.id,
                 communityName = group.name,
-                publicationDate = post.date.toString(),
+                publicationDate = mapTimestampToDate(post.date * MILLIS_IN_SECONDS),
                 avatarURL = group.photoUrl,
                 contentText = post.text,
                 contentURL = ((post.attachments?.firstOrNull()?.photo?.photoUrls?.lastOrNull()?.url ?: continue).toString()),
@@ -26,12 +29,21 @@ class FeedMapper {
                     StatItem(type = StatType.COMMENTS, count = post.comments.count),
                     StatItem(type = StatType.SHARES, count = post.repostsDto.count),
                     StatItem(type = StatType.LIKES, count = post.likes.count)
-                )
+                ),
+                isFavorite = post.isFavorite
             )
 
 
             result.add(feedPost)
         }
         return result
+    }
+
+    private fun mapTimestampToDate(timestamp: Long): String {
+        val date = Date(timestamp)
+        return SimpleDateFormat("d MMMM yyyy, hh:mm", Locale.getDefault()).format(date)
+    }
+    private companion object {
+        private const val MILLIS_IN_SECONDS = 1000
     }
 }

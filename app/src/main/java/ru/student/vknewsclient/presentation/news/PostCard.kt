@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
@@ -31,6 +32,7 @@ import coil.compose.AsyncImage
 import ru.student.vknewsclient.R
 import ru.student.vknewsclient.domain.StatItem
 import ru.student.vknewsclient.domain.StatType
+import ru.student.vknewsclient.ui.theme.DarkRed
 
 @Composable
 fun PostCard(
@@ -47,7 +49,6 @@ fun PostCard(
         colors = CardDefaults.cardColors(colorScheme.background)
     ) {
         Header(feedPost)
-        Spacer(modifier = Modifier.height(4.dp))
         Content(feedPost)
         Spacer(modifier = Modifier.height(4.dp))
         Stats(
@@ -100,7 +101,7 @@ private fun Stats(
             val viewsItem = stats.getItemByType(StatType.VIEWS)
             StatIcon(
                 drawableId = R.drawable.ic_views_count,
-                text = viewsItem.count.toString(),
+                text = formatStatCount(viewsItem.count),
                 clickListener = {
                     onViewsClickListener(viewsItem)
                 }
@@ -116,25 +117,46 @@ private fun Stats(
             val likesItem = stats.getItemByType(StatType.LIKES)
             StatIcon(
                 drawableId = R.drawable.ic_share,
-                text = sharesItem.count.toString(),
+                text = formatStatCount(sharesItem.count),
                 clickListener = {
                     onSharesClickListener(sharesItem)
                 }
             )
             StatIcon(
                 drawableId = R.drawable.ic_comment,
-                text = commentsItem.count.toString(),
+                text = formatStatCount(commentsItem.count),
                 clickListener = {
                     onCommentsClickListener()
                 }
             )
             StatIcon(
-                drawableId = R.drawable.ic_like,
-                text = likesItem.count.toString(),
+                drawableId = if (feedPost.isFavorite) R.drawable.ic_like_set else R.drawable.ic_like,
+                text = formatStatCount(likesItem.count),
                 clickListener = {
                     onLikesClickListener(likesItem)
-                }
+                },
+                tint = if (feedPost.isFavorite) DarkRed else MaterialTheme.colorScheme.onSecondary
             )
+        }
+    }
+}
+
+private fun formatStatCount(count: Int): String {
+    return when (count) {
+        in 1_000_000..Int.MAX_VALUE -> {
+            String.format("%.1fM", count / 1_000_000f)
+        }
+
+        in 100_000 until 1_000_000 -> {
+            String.format("%sK", count / 1_000)
+        }
+
+        in 1_000 until 100_000 -> {
+            String.format("%.1fK", count / 1_000f)
+        }
+
+        else -> {
+            count.toString()
         }
     }
 }
@@ -185,7 +207,8 @@ private fun Header(feedPost: FeedPost) {
 private fun StatIcon(
     text: String,
     drawableId: Int,
-    clickListener: () -> Unit
+    clickListener: () -> Unit,
+    tint: Color = MaterialTheme.colorScheme.onSecondary
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -194,15 +217,19 @@ private fun StatIcon(
         }
     ) {
         Icon(
-            tint = MaterialTheme.colorScheme.onSecondary,
+            tint = tint,
             imageVector = ImageVector.vectorResource(id = drawableId),
             contentDescription = null,
-            modifier = Modifier.padding(end = 2.dp)
+            modifier = Modifier
+                .padding(end = 2.dp)
+                .size(20.dp)
+
         )
         Text(
             text = text,
             color = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.padding(2.dp)
+            modifier = Modifier
+                .padding(2.dp)
         )
     }
 }
