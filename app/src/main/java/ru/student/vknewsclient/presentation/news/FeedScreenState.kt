@@ -4,6 +4,11 @@ sealed class FeedScreenState {
 
     object Initial : FeedScreenState()
 
-    data class Posts(val posts: List<FeedPost>) : FeedScreenState()
+    object Loading : FeedScreenState()
+
+    data class Posts(
+        val posts: List<FeedPost>,
+        val nextDataIsLoading: Boolean = false
+    ) : FeedScreenState()
 
 }

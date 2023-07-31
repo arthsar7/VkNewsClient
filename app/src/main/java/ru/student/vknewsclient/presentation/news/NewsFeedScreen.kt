@@ -5,13 +5,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -31,8 +38,19 @@ fun NewsScreen(
                 paddingValues = paddingValues,
                 feedPosts = currentState.posts,
                 viewModel = viewModel,
-                onCommentsClickListener = onCommentsClickListener
+                onCommentsClickListener = onCommentsClickListener,
+                nextDataIsLoading = currentState.nextDataIsLoading
             )
+        }
+
+        is FeedScreenState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         }
 
         is FeedScreenState.Initial -> {
@@ -47,14 +65,15 @@ private fun FeedPosts(
     paddingValues: PaddingValues,
     feedPosts: List<FeedPost>,
     viewModel: FeedViewModel,
-    onCommentsClickListener: (FeedPost) -> Unit
+    onCommentsClickListener: (FeedPost) -> Unit,
+    nextDataIsLoading: Boolean
 ) {
     LazyColumn(contentPadding = paddingValues, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         itemsIndexed(
             items = feedPosts,
             key = { _, item -> item.id }
         ) { _, feedPost ->
-            val state = rememberDismissState(positionalThreshold = { 0.1f })
+            val state = rememberDismissState()
             if (state.isDismissed(DismissDirection.EndToStart)) {
                 viewModel.removePost(feedPost)
             }
@@ -67,20 +86,36 @@ private fun FeedPosts(
                 dismissContent = {
                     PostCard(
                         feedPost = feedPost,
-                        onViewsClickListener = { statItem ->
-                            viewModel.updateCount(feedPost, statItem)
-                        },
-                        onSharesClickListener = { statItem ->
-                            viewModel.updateCount(feedPost, statItem)
+                        onSharesClickListener = {
                         },
                         onCommentsClickListener = { onCommentsClickListener(feedPost) },
-                        onLikesClickListener = { statItem ->
-                            viewModel.updateCount(feedPost, statItem)
-                        },
-                    )
+                    ) {
+                        viewModel.changeLikeStatus(feedPost)
+                    }
                 },
                 directions = setOf(DismissDirection.EndToStart)
             )
+        }
+        item {
+            if(nextDataIsLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(16.dp)
+                )
+                {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+            else
+            {
+                SideEffect {
+                    viewModel.loadNextRecommendations()
+                }
+            }
         }
     }
 }

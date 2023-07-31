@@ -28,14 +28,16 @@ fun NavGraphBuilder.homeScreenNavGraph(
                     }
                 )
             ) {
-                val feedPost = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    it.arguments?.getParcelable(
-                        Screen.Comments.COMMENT_KEY_POST,
-                        FeedPost::class.java
-                    )
-                } else {
-                    it.arguments?.getParcelable(Screen.Comments.COMMENT_KEY_POST)
-                } ?: throw IllegalStateException("Empty args")
+                val feedPost =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        it.arguments?.getParcelable(
+                            Screen.Comments.COMMENT_KEY_POST,
+                            FeedPost::class.java
+                        )
+                    } else {
+                        @Suppress("DEPRECATION")
+                        it.arguments?.getParcelable(Screen.Comments.COMMENT_KEY_POST)
+                    } ?: throw IllegalStateException("Empty args")
                 commentsScreenContent(feedPost)
             }
         }

@@ -1,11 +1,9 @@
 package ru.student.vknewsclient.presentation.comments
 
-import ru.student.vknewsclient.R
-
 data class Comment(
-    val id: Int,
+    val id: Long,
     val authorName: String = "Author",
-    val avatarId: Int = R.drawable.post_comunity_thumbnail,
+    val avatarUrl: String,
     val commentText: String = "Long comment text",
     val date: String = "14:00"
 ) {

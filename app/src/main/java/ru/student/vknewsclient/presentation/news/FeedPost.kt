@@ -7,18 +7,18 @@ import androidx.navigation.NavType
 import com.google.gson.Gson
 import kotlinx.parcelize.Parcelize
 import ru.student.vknewsclient.domain.StatItem
-import kotlin.random.Random
 
 @Parcelize
 data class FeedPost(
-    val id: String,
+    val id: Long,
     val communityName: String = "/dev/null",
+    val communityId: Long,
     val publicationDate: String = "14:00",
     val avatarURL: String,
     val contentText: String,
     val contentURL: String?,
     val stats: List<StatItem>,
-    val isFavorite: Boolean
+    val isLiked: Boolean
 ): Parcelable {
     companion object {
         val NavigationType: NavType<FeedPost> = object : NavType<FeedPost>(false) {
