@@ -17,12 +17,13 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import ru.student.vknewsclient.navigation.AppNavGraph
 import ru.student.vknewsclient.navigation.rememberNavigationState
+import ru.student.vknewsclient.presentation.ViewModelFactory
 import ru.student.vknewsclient.presentation.comments.CommentsScreen
 import ru.student.vknewsclient.presentation.main.NavigationItem
 import ru.student.vknewsclient.presentation.news.NewsScreen
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModelFactory: ViewModelFactory) {
     val navigationState = rememberNavigationState()
     Scaffold(
         bottomBar = {
@@ -64,7 +65,7 @@ fun MainScreen() {
         AppNavGraph(
             navHostController = navigationState.navHostController,
             homeScreenContent = {
-                NewsScreen(paddingValues = it) {
+                NewsScreen(paddingValues = it, viewModelFactory) {
                     navigationState.navigateToComments(it)
                 }
             },

@@ -1,5 +1,7 @@
 package ru.student.vknewsclient.presentation.news
 
+import ru.student.vknewsclient.domain.entity.FeedPost
+
 sealed class FeedScreenState {
 
     object Initial : FeedScreenState()

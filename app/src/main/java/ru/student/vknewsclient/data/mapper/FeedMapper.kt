@@ -2,16 +2,17 @@ package ru.student.vknewsclient.data.mapper
 
 import ru.student.vknewsclient.data.model.CommentsResponseDto
 import ru.student.vknewsclient.data.model.FeedResponseDto
-import ru.student.vknewsclient.domain.StatItem
-import ru.student.vknewsclient.domain.StatType
-import ru.student.vknewsclient.presentation.comments.Comment
-import ru.student.vknewsclient.presentation.news.FeedPost
+import ru.student.vknewsclient.domain.entity.Comment
+import ru.student.vknewsclient.domain.entity.FeedPost
+import ru.student.vknewsclient.domain.entity.StatItem
+import ru.student.vknewsclient.domain.entity.StatType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.math.absoluteValue
 
-class FeedMapper {
+class FeedMapper @Inject constructor() {
 
     fun mapResponseToPost(response: FeedResponseDto): List<FeedPost> {
         val result = mutableListOf<FeedPost>()

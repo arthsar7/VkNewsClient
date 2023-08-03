@@ -1,52 +1,64 @@
 package ru.student.vknewsclient.presentation.news
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import ru.student.vknewsclient.data.repository.FeedRepository
+import ru.student.vknewsclient.data.extensions.mergeWith
+import ru.student.vknewsclient.domain.entity.FeedPost
+import ru.student.vknewsclient.domain.usecases.ChangeLikeStatusUseCase
+import ru.student.vknewsclient.domain.usecases.GetRecommendationsUseCase
+import ru.student.vknewsclient.domain.usecases.IgnorePostUseCase
+import ru.student.vknewsclient.domain.usecases.LoadNextDataUseCase
+import javax.inject.Inject
 
-class FeedViewModel(application: Application) : AndroidViewModel(application) {
+class FeedViewModel @Inject constructor(
+    getRecommendationsUseCase: GetRecommendationsUseCase,
+    private val loadNextDataUseCase: LoadNextDataUseCase,
+    private val changeLikeStatusUseCase: ChangeLikeStatusUseCase,
+    private val ignorePostUseCase: IgnorePostUseCase,
+) : ViewModel() {
 
-    private val _screenState: MutableLiveData<FeedScreenState> = MutableLiveData(FeedScreenState.Initial)
-    val screenState: LiveData<FeedScreenState> = _screenState
-    private val repository = FeedRepository(application)
-
-    init {
-        _screenState.value = FeedScreenState.Loading
-        loadRecommendations()
+    private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
     }
 
-    private fun loadRecommendations() {
-        viewModelScope.launch {
-            _screenState.value = FeedScreenState.Posts(repository.loadRecommendations())
+    private val recommendationsFlow = getRecommendationsUseCase()
+
+    private val loadNextDataFlow = MutableSharedFlow<FeedScreenState>()
+
+    @Suppress("USELESS_CAST")
+    val screenState = recommendationsFlow
+        .filter { it.isNotEmpty()}
+        .map { FeedScreenState.Posts(it) as FeedScreenState }
+        .onStart { emit(FeedScreenState.Loading) }
+        .mergeWith(loadNextDataFlow)
+
+    fun loadNextRecommendations() {
+        viewModelScope.launch(exceptionHandler) {
+            loadNextDataFlow.emit(
+                FeedScreenState.Posts(
+                    posts = recommendationsFlow.value,
+                    nextDataIsLoading = true
+                )
+            )
+            loadNextDataUseCase()
         }
     }
 
-
-    fun loadNextRecommendations() {
-        _screenState.value = FeedScreenState.Posts(
-            posts = repository.feedPosts,
-            nextDataIsLoading = true
-        )
-        loadRecommendations()
-    }
-
     fun changeLikeStatus(feedPost: FeedPost) {
-        viewModelScope.launch {
-            repository.changeLikeStatus(feedPost)
-            _screenState.value = FeedScreenState.Posts(repository.feedPosts)
+        viewModelScope.launch(exceptionHandler) {
+            changeLikeStatusUseCase(feedPost)
         }
     }
 
 
     fun removePost(feedPost: FeedPost) {
-
-        viewModelScope.launch {
-            repository.ignorePost(feedPost)
-            _screenState.value = FeedScreenState.Posts(repository.feedPosts)
+        viewModelScope.launch(exceptionHandler) {
+            ignorePostUseCase(feedPost)
         }
     }
 

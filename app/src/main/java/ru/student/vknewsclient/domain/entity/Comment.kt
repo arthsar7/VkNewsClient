@@ -1,4 +1,4 @@
-package ru.student.vknewsclient.presentation.comments
+package ru.student.vknewsclient.domain.entity
 
 data class Comment(
     val id: Long,

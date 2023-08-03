@@ -1,6 +1,7 @@
 package ru.student.vknewsclient.presentation.comments
 
-import ru.student.vknewsclient.presentation.news.FeedPost
+import ru.student.vknewsclient.domain.entity.Comment
+import ru.student.vknewsclient.domain.entity.FeedPost
 
 sealed class CommentsScreenState {
 
