@@ -21,36 +21,49 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import ru.student.vknewsclient.R
 import ru.student.vknewsclient.domain.entity.Comment
 import ru.student.vknewsclient.domain.entity.FeedPost
-import ru.student.vknewsclient.presentation.FeedApplication
+import ru.student.vknewsclient.presentation.getApplicationComponent
 
 @Composable
 fun CommentsScreen(
     onBackPressedListener: () -> Unit,
     feedPost: FeedPost,
 ) {
-    val component = (LocalContext.current.applicationContext as FeedApplication).component
+    val component = getApplicationComponent()
         .getCommentScreenComponentFactory()
         .create(feedPost)
     val viewModel: CommentsViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState = viewModel.screenState
         .collectAsState(CommentsScreenState.Initial)
+    CommentsScreenContent(
+        screenState = screenState,
+        onBackPressedListener = onBackPressedListener
+    )
+}
+
+@Composable
+private fun CommentsScreenContent(
+    screenState: State<CommentsScreenState>,
+    onBackPressedListener: () -> Unit
+) {
     val currentState = screenState.value
     if (currentState !is CommentsScreenState.Comments) return
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Comments") },
+                title = { Text(stringResource(R.string.commentsTitle)) },
                 navigationIcon = {
                     IconButton(onClick = { onBackPressedListener() }) {
                         Icon(
@@ -61,10 +74,8 @@ fun CommentsScreen(
                 }
             )
         }
-    ) {
-        LazyColumn(
-            contentPadding = it
-        ) {
+    ) { paddingValues ->
+        LazyColumn(contentPadding = paddingValues) {
             itemsIndexed(
                 items = currentState.comments,
                 key = { _, comment -> comment.id }

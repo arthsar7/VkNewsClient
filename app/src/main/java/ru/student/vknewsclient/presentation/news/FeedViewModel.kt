@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import ru.student.vknewsclient.data.extensions.mergeWith
 import ru.student.vknewsclient.domain.entity.FeedPost
+import ru.student.vknewsclient.domain.usecases.ChangeFaveStatusUseCase
 import ru.student.vknewsclient.domain.usecases.ChangeLikeStatusUseCase
 import ru.student.vknewsclient.domain.usecases.GetRecommendationsUseCase
 import ru.student.vknewsclient.domain.usecases.IgnorePostUseCase
@@ -21,6 +22,7 @@ class FeedViewModel @Inject constructor(
     private val loadNextDataUseCase: LoadNextDataUseCase,
     private val changeLikeStatusUseCase: ChangeLikeStatusUseCase,
     private val ignorePostUseCase: IgnorePostUseCase,
+    private val changeFaveStatusUseCase: ChangeFaveStatusUseCase
 ) : ViewModel() {
 
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
@@ -28,14 +30,18 @@ class FeedViewModel @Inject constructor(
 
     private val recommendationsFlow = getRecommendationsUseCase()
 
+
     private val loadNextDataFlow = MutableSharedFlow<FeedScreenState>()
+
 
     @Suppress("USELESS_CAST")
     val screenState = recommendationsFlow
-        .filter { it.isNotEmpty()}
+        .filter { it.isNotEmpty() }
         .map { FeedScreenState.Posts(it) as FeedScreenState }
         .onStart { emit(FeedScreenState.Loading) }
         .mergeWith(loadNextDataFlow)
+
+
 
     fun loadNextRecommendations() {
         viewModelScope.launch(exceptionHandler) {
@@ -54,7 +60,11 @@ class FeedViewModel @Inject constructor(
             changeLikeStatusUseCase(feedPost)
         }
     }
-
+    fun changeFaveStatus(feedPost: FeedPost) {
+        viewModelScope.launch {
+            changeFaveStatusUseCase(feedPost)
+        }
+    }
 
     fun removePost(feedPost: FeedPost) {
         viewModelScope.launch(exceptionHandler) {

@@ -1,6 +1,5 @@
 package ru.student.vknewsclient.ui.theme
 
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -9,21 +8,18 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import ru.student.vknewsclient.navigation.AppNavGraph
 import ru.student.vknewsclient.navigation.rememberNavigationState
-import ru.student.vknewsclient.presentation.ViewModelFactory
 import ru.student.vknewsclient.presentation.comments.CommentsScreen
+import ru.student.vknewsclient.presentation.favorite.FavoriteScreen
 import ru.student.vknewsclient.presentation.main.NavigationItem
 import ru.student.vknewsclient.presentation.news.NewsScreen
 
 @Composable
-fun MainScreen(viewModelFactory: ViewModelFactory) {
+fun MainScreen() {
     val navigationState = rememberNavigationState()
     Scaffold(
         bottomBar = {
@@ -65,13 +61,12 @@ fun MainScreen(viewModelFactory: ViewModelFactory) {
         AppNavGraph(
             navHostController = navigationState.navHostController,
             homeScreenContent = {
-                NewsScreen(paddingValues = it, viewModelFactory) {
+                NewsScreen(paddingValues = it) {
                     navigationState.navigateToComments(it)
                 }
             },
             favouriteScreenContent = {
-                val count = rememberSaveable { mutableStateOf(0) }
-                Text(text = "Fav ${count.value}", Modifier.clickable { count.value++ })
+                FavoriteScreen(paddingValues = it)
             },
             profileScreenContent = { Text(text = "Prof") },
             commentsScreenContent = {

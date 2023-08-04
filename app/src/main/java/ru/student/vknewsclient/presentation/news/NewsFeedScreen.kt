@@ -1,5 +1,6 @@
 package ru.student.vknewsclient.presentation.news
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,17 +26,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.student.vknewsclient.domain.entity.FeedPost
-import ru.student.vknewsclient.presentation.ViewModelFactory
+import ru.student.vknewsclient.presentation.getApplicationComponent
 
 @Composable
 fun NewsScreen(
     paddingValues: PaddingValues,
-    viewModelFactory: ViewModelFactory,
     onCommentsClickListener: (FeedPost) -> Unit,
 ) {
-    val viewModel: FeedViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: FeedViewModel =
+        viewModel(factory = getApplicationComponent().getViewModelFactory())
     val screenState = viewModel.screenState
         .collectAsState(FeedScreenState.Initial)
+    Log.d("NewsScreen", "RECOMPOSITION")
+
+    FeedScreenState(
+        screenState = screenState,
+        paddingValues = paddingValues,
+        viewModel = viewModel,
+        onCommentsClickListener = onCommentsClickListener,
+    )
+}
+
+@Composable
+private fun FeedScreenState(
+    screenState: State<FeedScreenState>,
+    paddingValues: PaddingValues,
+    viewModel: FeedViewModel,
+    onCommentsClickListener: (FeedPost) -> Unit,
+) {
     when (val currentState = screenState.value) {
         is FeedScreenState.Posts -> {
             FeedPosts(
@@ -90,17 +109,18 @@ private fun FeedPosts(
                     PostCard(
                         feedPost = feedPost,
                         onSharesClickListener = {
+                            Log.d("VIEWMODEL", "ZAEBALO")
                         },
                         onCommentsClickListener = { onCommentsClickListener(feedPost) },
-                    ) {
-                        viewModel.changeLikeStatus(feedPost)
-                    }
+                        onLikesClickListener = { viewModel.changeLikeStatus(feedPost) },
+                        onFaveClickListener = { viewModel.changeFaveStatus(feedPost) }
+                    )
                 },
                 directions = setOf(DismissDirection.EndToStart)
             )
         }
         item {
-            if(nextDataIsLoading) {
+            if (nextDataIsLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -112,9 +132,7 @@ private fun FeedPosts(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-            }
-            else
-            {
+            } else {
                 SideEffect {
                     viewModel.loadNextRecommendations()
                 }

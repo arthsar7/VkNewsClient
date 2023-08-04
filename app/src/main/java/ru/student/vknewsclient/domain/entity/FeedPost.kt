@@ -3,10 +3,11 @@ package ru.student.vknewsclient.domain.entity
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import androidx.navigation.NavType
 import com.google.gson.Gson
 import kotlinx.parcelize.Parcelize
-
+@Immutable
 @Parcelize
 data class FeedPost(
     val id: Long,
@@ -17,7 +18,8 @@ data class FeedPost(
     val contentText: String,
     val contentURL: String?,
     val stats: List<StatItem>,
-    val isLiked: Boolean
+    val isLiked: Boolean,
+    val isFavorite: Boolean
 ): Parcelable {
     companion object {
         val NavigationType: NavType<FeedPost> = object : NavType<FeedPost>(false) {

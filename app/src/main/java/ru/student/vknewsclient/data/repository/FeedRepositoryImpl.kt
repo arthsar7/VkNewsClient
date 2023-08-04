@@ -31,12 +31,20 @@ class FeedRepositoryImpl @Inject constructor(
     private val token
         get() = VKAccessToken.restore(storage)
 
-
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
-
     private val nextDataNeededEvents = MutableSharedFlow<Unit>(replay = 1)
+
+    private val faveEmitFlow = MutableSharedFlow<Unit>(replay = 1)
+
     private val refreshedListFlow = MutableSharedFlow<List<FeedPost>>()
+
+    private val refreshedFavListFlow = MutableSharedFlow<List<FeedPost>>()
+
+    private val _favePosts = mutableListOf<FeedPost>()
+    private val favePosts: List<FeedPost>
+        get() = _favePosts.toList()
+
 
     private val _feedPosts = mutableListOf<FeedPost>()
     private val feedPosts: List<FeedPost>
@@ -55,7 +63,7 @@ class FeedRepositoryImpl @Inject constructor(
             val response = if (startFrom == null) apiService.loadRecommendations(getAccessToken())
             else apiService.loadRecommendations(getAccessToken(), startFrom)
             nextFrom = response.feedContent.nextFrom
-            val posts = mapper.mapResponseToPost(response)
+            val posts = mapper.mapResponseToPost(response.feedContent)
             _feedPosts.addAll(posts)
             emit(feedPosts)
         }
@@ -122,12 +130,61 @@ class FeedRepositoryImpl @Inject constructor(
         )
     }
 
+    private val faveListColdFlow = flow {
+        loadFaves()
+        faveEmitFlow.collect {
+            val response = apiService.loadFaves(getAccessToken())
+            _favePosts.addAll(mapper.mapResponseToPost(response.faves))
+            emit(favePosts)
+        }
+    }.mergeWith(refreshedFavListFlow)
+
+    override fun getFavorites(): StateFlow<List<FeedPost>> {
+        return faveListColdFlow
+            .stateIn(
+                scope = coroutineScope,
+                started = SharingStarted.Lazily,
+                initialValue = listOf()
+            )
+    }
+
+    private suspend fun loadFaves() {
+        faveEmitFlow.emit(Unit)
+    }
+
+    override suspend fun changeFaveStatus(feedPost: FeedPost) {
+        if (feedPost.isFavorite) {
+            apiService.removeFave(
+                token = getAccessToken(),
+                ownerId = feedPost.communityId,
+                postId = feedPost.id
+            )
+            _favePosts.remove(_favePosts.find { it.id == feedPost.id })
+        } else {
+            apiService.addFave(
+                token = getAccessToken(),
+                ownerId = feedPost.communityId,
+                postId = feedPost.id
+            )
+            _favePosts.add(feedPost.copy(isFavorite = true))
+        }
+        val postIndex = _feedPosts.indexOf(feedPost)
+        if (postIndex != -1) _feedPosts[postIndex] =
+            feedPost.copy(isFavorite = !feedPost.isFavorite)
+        refreshedListFlow.emit(feedPosts)
+        refreshedFavListFlow.emit(favePosts)
+    }
+
     override suspend fun changeLikeStatus(feedPost: FeedPost) {
         val response = if (feedPost.isLiked) apiService.deleteLike(
-            token = getAccessToken(), ownerId = feedPost.communityId, itemId = feedPost.id
+            token = getAccessToken(),
+            ownerId = feedPost.communityId,
+            itemId = feedPost.id
         )
         else apiService.addLike(
-            token = getAccessToken(), ownerId = feedPost.communityId, itemId = feedPost.id
+            token = getAccessToken(),
+            ownerId = feedPost.communityId,
+            itemId = feedPost.id
         )
         val newLikesCount = response.likes.count
         val newStats = feedPost.stats.toMutableList().apply {

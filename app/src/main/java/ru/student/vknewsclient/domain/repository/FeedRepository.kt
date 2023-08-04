@@ -10,10 +10,13 @@ interface FeedRepository {
     fun getAuthStateFlow(): StateFlow<AuthState>
     fun getRecommendations(): StateFlow<List<FeedPost>>
     fun getComments(feedPost: FeedPost): StateFlow<List<Comment>>
+    fun getFavorites(): StateFlow<List<FeedPost>>
 
     suspend fun loadNextData()
     suspend fun checkAuthState()
     suspend fun ignorePost(feedPost: FeedPost)
+
+    suspend fun changeFaveStatus(feedPost: FeedPost)
     suspend fun changeLikeStatus(feedPost: FeedPost)
 
 }

@@ -3,5 +3,7 @@
     <string name="navigation_item_main">Главная</string>
     <string name="navigation_item_favourite">Избранное</string>
     <string name="navigation_item_profile">Профиль</string>
+    <string name="commentsTitle">Комментарии</string>
+    <string name="emptyCommentsTitle">Комментарии отсутствуют</string>
     <integer name="com_vk_sdk_AppId">51715711</integer>
 </resources>

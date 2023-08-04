@@ -16,7 +16,10 @@ fun AppNavGraph(
 ) {
     NavHost(navController = navHostController, startDestination = Screen.Home.route) {
 
-        homeScreenNavGraph(homeScreenContent, commentsScreenContent)
+        homeScreenNavGraph(
+            homeScreenContent = homeScreenContent,
+            commentsScreenContent = commentsScreenContent
+        )
 
         composable(Screen.Favourite.route) {
             favouriteScreenContent()

@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,21 +34,26 @@ import ru.student.vknewsclient.domain.entity.FeedPost
 import ru.student.vknewsclient.domain.entity.StatItem
 import ru.student.vknewsclient.domain.entity.StatType
 import ru.student.vknewsclient.ui.theme.DarkRed
+import ru.student.vknewsclient.ui.theme.LightBlue
 
 @Composable
 fun PostCard(
     modifier: Modifier = Modifier,
     feedPost: FeedPost,
-    onSharesClickListener: (StatItem) -> Unit,
+    onSharesClickListener: () -> Unit,
     onCommentsClickListener: () -> Unit,
-    onLikesClickListener: (StatItem) -> Unit
+    onLikesClickListener: () -> Unit,
+    onFaveClickListener: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(colorScheme.background)
     ) {
-        Header(feedPost)
+        Header(
+            feedPost = feedPost,
+            onFaveClickListener = onFaveClickListener
+        )
         Content(feedPost)
         Spacer(modifier = Modifier.height(4.dp))
         Stats(
@@ -84,9 +87,9 @@ private fun Content(feedPost: FeedPost) {
 @Composable
 private fun Stats(
     feedPost: FeedPost,
-    onSharesClickListener: (StatItem) -> Unit,
+    onSharesClickListener: () -> Unit,
     onCommentsClickListener: () -> Unit,
-    onLikesClickListener: (StatItem) -> Unit
+    onLikesClickListener: () -> Unit
 ) {
     val stats = feedPost.stats
     Row(
@@ -116,7 +119,7 @@ private fun Stats(
                 drawableId = R.drawable.ic_share,
                 text = formatStatCount(sharesItem.count),
                 clickListener = {
-                    onSharesClickListener(sharesItem)
+                    onSharesClickListener()
                 }
             )
             StatIcon(
@@ -130,7 +133,7 @@ private fun Stats(
                 drawableId = if (feedPost.isLiked) R.drawable.ic_like_set else R.drawable.ic_like,
                 text = formatStatCount(likesItem.count),
                 clickListener = {
-                    onLikesClickListener(likesItem)
+                    onLikesClickListener()
                 },
                 tint = if (feedPost.isLiked) DarkRed else MaterialTheme.colorScheme.onSecondary
             )
@@ -163,7 +166,10 @@ private fun List<StatItem>.getItemByType(type: StatType): StatItem {
 }
 
 @Composable
-private fun Header(feedPost: FeedPost) {
+private fun Header(
+    feedPost: FeedPost,
+    onFaveClickListener: () -> Unit
+) {
     Column {
         Row(
             modifier = Modifier
@@ -192,9 +198,14 @@ private fun Header(feedPost: FeedPost) {
                 )
             }
             Icon(
-                imageVector = Icons.Rounded.MoreVert,
+                imageVector = ImageVector.vectorResource(R.drawable.ic_bookmark),
                 contentDescription = "more",
-                tint = MaterialTheme.colorScheme.onSecondary
+                tint = if (feedPost.isFavorite) LightBlue
+                else MaterialTheme.colorScheme.onSecondary,
+                modifier = Modifier.size(24.dp)
+                    .clickable {
+                    onFaveClickListener()
+                }
             )
         }
     }
